@@ -38,6 +38,18 @@ defmodule Ecto.Repo.Queryable do
   end
 
   @doc """
+  Implementation for `Ecto.Repo.filter/2`
+  """
+
+  def filter_by(queryable, filters) do
+    query = Queryable.to_query(queryable)
+    query = Ecto.Query.from(x in query)
+    Enum.reduce(filters, query, fn({field, value}, q)->
+        Ecto.Query.where(q, [x], field(x, ^field) == ^value)
+    end)
+  end
+
+  @doc """
   Implementation for `Ecto.Repo.one/2`
   """
   def one(repo, adapter, queryable, opts) do

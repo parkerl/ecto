@@ -372,6 +372,19 @@ defmodule Ecto.Integration.RepoTest do
     end
   end
 
+  test "filter_by" do
+    post1 = TestRepo.insert!(%Post{title: "1", text: "hai"})
+    post2 = TestRepo.insert!(%Post{title: "2", text: "hello"})
+
+    assert [post1, post2] == TestRepo.filter_by(Post) |> TestRepo.all
+    assert [post1, post2] == TestRepo.filter_by(Post, %{}) |> TestRepo.all
+
+    assert [post1] == TestRepo.filter_by(Post, id: post1.id) |> TestRepo.all
+    assert [post1] == TestRepo.filter_by(Post, text: post1.text) |> TestRepo.all
+    assert [post1] == TestRepo.filter_by(Post, text: post1.text, title: post1.title) |> TestRepo.all
+    assert []      == TestRepo.filter_by(Post, text: "Nope", title: post1.title) |> TestRepo.all
+  end
+
   test "one(!)" do
     post1 = TestRepo.insert!(%Post{title: "1", text: "hai"})
     post2 = TestRepo.insert!(%Post{title: "2", text: "hai"})

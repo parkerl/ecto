@@ -108,6 +108,10 @@ defmodule Ecto.Repo do
         Ecto.Repo.Queryable.get_by!(__MODULE__, unquote(adapter), queryable, clauses, opts)
       end
 
+      def filter_by(queryable, filter \\ %{}) do
+        Ecto.Repo.Queryable.filter_by(queryable, filter)
+      end
+
       def one(queryable, opts \\ []) do
         Ecto.Repo.Queryable.one(__MODULE__, @adapter, queryable, opts)
       end

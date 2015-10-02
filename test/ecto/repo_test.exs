@@ -972,4 +972,18 @@ defmodule Ecto.RepoTest do
             {:before_delete, MyEmbed}, {:before_delete, MyModel} | _] =
       Agent.get(CallbackAgent, &get_models/1)
   end
+
+  test "filter_by with no filter" do
+    valid = Ecto.Changeset.cast(%MyModel{id: 1}, %{}, [], [])
+    assert {:ok, %MyModel{}} = TestRepo.insert(valid)
+    query = TestRepo.filter_by(MyModel)
+    assert [1] = TestRepo.all(query)
+  end
+
+  test "filter_by takes a filter" do
+    valid = Ecto.Changeset.cast(%MyModel{id: 1}, %{}, [], [])
+    assert {:ok, %MyModel{}} = TestRepo.insert(valid)
+    query = TestRepo.filter_by(MyModel, %{some: "attribute"})
+    assert [1] = TestRepo.all(query)
+  end
 end
