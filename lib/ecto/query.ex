@@ -489,6 +489,14 @@ defmodule Ecto.Query do
     Filter.build(:where, query, binding, expr, __CALLER__)
   end
 
+  defmacro where(query, filters) do
+    quote do
+      Enum.reduce(unquote(filters), unquote(query), fn({field, value}, q)->
+        where(q, [x], field(x, ^field) == ^value)
+      end)
+    end
+  end
+
   @doc """
   An order by query expression.
 
