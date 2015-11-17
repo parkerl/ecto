@@ -263,4 +263,42 @@ defmodule Ecto.QueryTest do
     assert excluded_query.preloads == base.preloads
     assert excluded_query.assocs == base.assocs
   end
+
+  defmacro assert_compile_time_raise(expected_exception, expected_message, fun) do
+    fun_quoted_at_runtime = Macro.escape(fun)
+
+    quote do
+      assert_raise unquote(expected_exception), unquote(expected_message), fn ->
+        Code.eval_quoted(unquote(fun_quoted_at_runtime))
+      end
+    end
+  end
+
+  test "fragment with interpolation and no variables" do
+    # This compiles, however it does not raise "fragment(...) expects extra
+    # arguments in the same amount of question marks in string".
+    # Also, neither the Postgres or MySQL allow ths query to run.
+
+    msg = ~r"expects extra arguments in the same amount"
+
+    assert_compile_time_raise Ecto.Query.CompileError, msg, fn ->
+      import Ecto.Query
+
+      clause = "1 = ?"
+      from p in "posts", where: fragment(^clause)
+    end
+  end
+
+  test "fragment with interpolation and a variable" do
+    clause = "1 = ?"
+    from p in "posts", where: fragment(^clause, 1)
+  end
+
+  test "fragment with sigil and no variables" do
+    from p in "posts", where: fragment(~S|1 = 1|)
+  end
+
+  test "fragment with sigil and a variable" do
+    from p in "posts", where: fragment(~S|1 = ?|, 1)
+  end
 end
