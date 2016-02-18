@@ -766,6 +766,21 @@ defmodule Ecto.Integration.RepoTest do
     assert [post3]         == (from Post, where: ^params3) |> TestRepo.all
   end
 
+  test "max function with first bug" do
+    #works but deprecated
+    TestRepo.one(from p in Post, select: max(p.id))
+    #blows up
+    TestRepo.first(from p in Post, select: max(p.id))
+  end
+ 
+  test "count function with first bug" do
+    #works but deprecated
+    TestRepo.one(from p in Post, select: count(p.id))
+    #blows up
+    TestRepo.first(from p in Post, select: count(p.id))
+  end
+
+
   ## Logging
 
   test "log entry logged on query" do
